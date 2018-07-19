@@ -1,11 +1,12 @@
 package com.thread.test;
 
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @Author:guang yong
- * Description:传统线程同步通信技术
+ * Description:condition线程同步通信技术
  * @Date:Created in 15:47 2018/7/9
  * @Modified By:
  */
@@ -31,14 +32,15 @@ public class ConditionCommunication {
 
     static class Business{
         Lock lock = new ReentrantLock();
+        Condition condition = lock.newCondition();
         private boolean aBoolean = true;
         public void sub(int i){
             lock.lock();
             try{
                 while (!aBoolean){
                     try {
-                        this.wait();
-                    } catch (InterruptedException e) {
+                        condition.await();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -46,7 +48,7 @@ public class ConditionCommunication {
                     System.out.println("线程1："+j+"线程2："+i);
                 }
                 aBoolean = false;
-                this.notify();
+                condition.signal();
             }finally {
                 lock.unlock();
             }
@@ -58,8 +60,8 @@ public class ConditionCommunication {
             try{
                 while (aBoolean){
                     try {
-                        this.wait();
-                    } catch (InterruptedException e) {
+                        condition.await();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -68,7 +70,7 @@ public class ConditionCommunication {
                 }
 
                 aBoolean = true;
-                this.notify();
+                condition.signal();
             }finally {
                 lock.unlock();
             }
